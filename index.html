@@ -1,0 +1,22 @@
+<!doctype html>
+<html ng-app="burger">
+<head>
+    <meta charset="utf-8">    
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+
+    <script src="app.js"></script>
+    <script src="elementsController.js"></script>
+</head>
+<body>
+    <div ng-controller="ElementsController">
+    <form ng-submit="addElement()">
+    <input type="text" ng-model="newElement" />
+    </form>
+    <ul>
+        <li ng-repeat="element in elements | reverse" >
+        {{ element.name }}
+        </li>
+    </ul>
+    </div>
+</body>
+</html>
