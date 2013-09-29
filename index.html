@@ -7,21 +7,61 @@
     <script src="app.js"></script>
     <script src="elementsController.js"></script>
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    
+    <style>
+      .elementsContainer {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .elementItem {
+        margin: 2px 0;
+        padding: .3em;
+        width: 300px; 
+        border:1px solid silver; 
+        background-color: #f9f9f9;
+      }
+      input.collapsed {
+        margin: 0;
+        padding: 0;
+        height: 3px;
+        width: 20px;
+      }
+      input.collapsed:hover {
+        padding: .2em; 
+        height: 1.5em;
+        width: 300px;
+      }
+    </style>
+
 </head>
 <body>
+  <div class="container">
+    <h1>Build your Burger</h1>
     <div class='container-fluid' ng-controller="ElementsController">
-    <form ng-submit="addElement()">
-        <input type="text" ng-model="newElement" 
-               typeahead-editable="false"
-               typeahead="prototype for prototype in prototypes | filter:$viewValue | limitTo:8" >
-    </form>
-    <ul>
+   
+   <ul class="elementsContainer">
         <li ng-repeat="element in elements | reverse" >
-        {{ element.name }}
+          
+        <input type="text" ng-model="$parent.newElement" 
+               class="collapsed"
+               typeahead-editable="false"
+               typeahead-on-select="$parent.addElement($index)"
+               typeahead="p as p.name for p in prototypes | filter:$viewValue | limitTo:8" >
+          
+          <div class="elementItem" ng-switch on="element.type" >            
+            {{ element.name }}
+            <div ng-switch-when="cheese">
+              <select ng-model="element.cheeseType"
+                      ng-options="type for type in element.types" >
+            </div>
+            <div ng-switch-default>
+            </div>
+          </div>
         </li>
     </ul>
     </div>
-
+  </div>
 </body>
 
 </html>
