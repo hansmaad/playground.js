@@ -50,10 +50,14 @@
                typeahead="p as p.name for p in prototypes | filter:$viewValue | limitTo:8" >
           
           <div class="elementItem" ng-switch on="element.type" >            
-            {{ element.name }}
+            <p>{{ element.name }}</p>
             <div ng-switch-when="cheese">
               <select ng-model="element.cheeseType"
                       ng-options="type for type in element.types" >
+              </select>
+            </div>
+            <div ng-switch-when="sauce">
+              <input type="number" ng-model="element.liters"> liters
             </div>
             <div ng-switch-default>
             </div>

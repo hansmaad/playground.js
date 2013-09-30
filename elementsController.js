@@ -3,12 +3,22 @@ function Bun(name) {
   this.type = "bun";
   this.name = name === undefined ? "Bun" : name;  
   this.clone = function() { return new Bun(this.name); }
+  this.keywords = ["brot", "bread"];
+};
+
+function Sauce(name) {
+  this.type = "sauce";
+  this.name = name === undefined ? "Ketchup" : name;  
+  this.liters = 0.01;
+  
+  this.clone = function() { return new Sauce(this.name); }
 };
 
 function Meat(name) {
   this.type = "meat";
   this.name = name === undefined ? "Meat" : name;  
   this.clone = function() { return new Meat(this.name); }
+  this.keywords = ["fleisch", "burger"];
 };
 
 
@@ -25,6 +35,9 @@ function Cheese(name) {
 function ElementsController($scope) {
     $scope.prototypes = [
         new Bun(),
+        new Sauce(),
+        new Sauce("Sauce (Mayo)"),
+        new Sauce("Sauce (Sömpf)"),
         new Meat(), 
         new Meat("Meat (beef)"),
         new Meat("Meat (pork)"),
