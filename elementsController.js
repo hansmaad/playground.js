@@ -4,6 +4,9 @@ function Bun(name) {
   this.name = name === undefined ? "Bun" : name;  
   this.clone = function() { return new Bun(this.name); }
   this.keywords = ["brot", "bread"];
+  this.getPrice = function() {
+    return 0.5;
+  }
 };
 
 function Sauce(name) {
@@ -12,6 +15,9 @@ function Sauce(name) {
   this.liters = 0.01;
   
   this.clone = function() { return new Sauce(this.name); }
+  this.getPrice = function() {
+    return 0.5 * this.liters;
+  }
 };
 
 function Meat(name) {
@@ -19,6 +25,9 @@ function Meat(name) {
   this.name = name === undefined ? "Meat" : name;  
   this.clone = function() { return new Meat(this.name); }
   this.keywords = ["fleisch", "burger"];
+  this.getPrice = function() {
+    return 1.5;
+  }
 };
 
 
@@ -28,9 +37,31 @@ function Cheese(name) {
   this.name = name === undefined ? "Cheese" : name;
   this.clone = function() { return new Cheese(this.name); }
   this.types = [ "cheddar", "gauda" ];
+
+  this.getPrice = function() {
+    return 0.25;
+  }
 };
 
 
+function Bill(elements) {
+  this.elements = elements;
+  this.total = 0;
+
+  this.update = function() {
+    this.items = [];
+    for(var i = 0, e = this.elements.length; i < e; i++) {
+      var element = this.elements[i];
+      this.items.push({ 
+        "name" : element.name, 
+        "amount" : 1, 
+        "price" : element.getPrice === undefined ? "N/A" :  element.getPrice()
+        });
+    }   
+  };
+
+  this.update();
+}
 
 function ElementsController($scope) {
     $scope.prototypes = [
@@ -48,7 +79,7 @@ function ElementsController($scope) {
     ];
 
     $scope.elements = [ 
-        { name : "Bun" },
+        new Bun(),
     ];
    
     $scope.newElement = undefined;
@@ -60,8 +91,10 @@ function ElementsController($scope) {
         
         var reverseIndex = length - index;
                    
-       $scope.elements.splice(reverseIndex, 0, $scope.newElement.clone());
+        $scope.elements.splice(reverseIndex, 0, $scope.newElement.clone());
         $scope.newElement = "";
+        $scope.bill.update(); 
     }
     
+    $scope.bill = new Bill($scope.elements);
 }

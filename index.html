@@ -40,7 +40,7 @@
     <h1>Build your Burger</h1>
     <div class='container-fluid' ng-controller="ElementsController">
    
-   <ul class="elementsContainer">
+     <ul class="elementsContainer">
         <li ng-repeat="element in elements | reverse" >
           
         <input type="text" ng-model="$parent.newElement" 
@@ -63,7 +63,21 @@
             </div>
           </div>
         </li>
-    </ul>
+      </ul>
+
+       <h2>Bill</h2>
+       <table>
+         <tr ng-repeat="item in bill.items" >
+           <td>{{ item.name }}</td>
+           <td>{{ item.amount }} </td>
+           <td>{{ item.price }}</td>          
+         </tr>
+         <tr>
+           <td>Total</td>
+           <td></td>
+           <td>{{ bill.total }}</td>
+         </tr>
+       <table>
     </div>
   </div>
 </body>
