@@ -37,9 +37,10 @@
 </head>
 <body>
   <div class="container">
+
+    <div class='row' ng-controller="ElementsController">   
+    <div class="span6">
     <h1>Build your Burger</h1>
-    <div class='container-fluid' ng-controller="ElementsController">
-   
      <ul class="elementsContainer">
         <li ng-repeat="element in elements | reverse" >
           
@@ -64,10 +65,18 @@
           </div>
         </li>
       </ul>
-
+        </div>
+       <div class="span6">
        <h2>Bill</h2>
-       <table>
-         <tr ng-repeat="item in bill.items" >
+       <table class="table table-condensed">
+        <thead>
+        <tr>
+           <td>Item</td>
+           <td>Amount</td>
+           <td>Price</td>          
+        </tr>
+        </thead>
+        <tr ng-repeat="item in bill.items()" >
            <td>{{ item.name }}</td>
            <td>{{ item.amount }} </td>
            <td>{{ item.price }}</td>          
@@ -78,6 +87,8 @@
            <td>{{ bill.total }}</td>
          </tr>
        <table>
+       </div>
+      
     </div>
   </div>
 </body>

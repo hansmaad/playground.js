@@ -43,24 +43,43 @@ function Cheese(name) {
   }
 };
 
+function findIf(array, predicate) {   
+    for(var i = 0, e = array.length; i < e; i++) {
+        if (predicate(array[i]))
+        return array[i];
+    }
+}
 
 function Bill(elements) {
   this.elements = elements;
   this.total = 0;
 
-  this.update = function() {
-    this.items = [];
+  this.items = function() {
+    var bill = [];
+    this.total = 0;
     for(var i = 0, e = this.elements.length; i < e; i++) {
       var element = this.elements[i];
-      this.items.push({ 
-        "name" : element.name, 
-        "amount" : 1, 
-        "price" : element.getPrice === undefined ? "N/A" :  element.getPrice()
-        });
+      var existendItem = findIf(bill, function(item) { 
+        return item.type === element.type;
+      });
+
+      if (existendItem === undefined) {
+
+        bill.push({ 
+         "type" : element.type,
+         "name" : element.name, 
+         "amount" : 1, 
+          "price" : element.getPrice === undefined ? "N/A" :  element.getPrice()
+         });
+      } else {
+        existendItem.amount++;
+        existendItem.price += element.getPrice();     
+      }
+      this.total += element.getPrice();
     }   
+    return bill;
   };
 
-  this.update();
 }
 
 function ElementsController($scope) {
@@ -93,7 +112,6 @@ function ElementsController($scope) {
                    
         $scope.elements.splice(reverseIndex, 0, $scope.newElement.clone());
         $scope.newElement = "";
-        $scope.bill.update(); 
     }
     
     $scope.bill = new Bill($scope.elements);
