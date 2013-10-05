@@ -1,4 +1,7 @@
 
+
+
+
 function Bun(name) {
   this.type = "bun";
   this.name = name === undefined ? "Bun" : name;  
@@ -23,7 +26,10 @@ function Sauce(name) {
 function Meat(name) {
   this.type = "meat";
   this.name = name === undefined ? "Meat" : name;  
+  this.weight = 0.150;
+
   this.clone = function() { return new Meat(this.name); }
+
   this.keywords = ["fleisch", "burger"];
   this.getPrice = function() {
     return 1.5;
