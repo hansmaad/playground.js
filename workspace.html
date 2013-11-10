@@ -4,19 +4,69 @@
     <meta charset="utf-8">    
 	<script src="http://code.angularjs.org/1.1.5/angular.js"></script>
     <style>
-
+    	.workspace {
+    		position: relative;
+    		width: 800px;
+    		height: 800px;
+    		background: #ddd;
+    	}
+    	
+    	.workspaceElement {
+    		position: absolute;
+    		left: 0px;
+    		top: 0 px;
+    	}
+    	.pumpIcon {
+    		stroke: black;
+    		fill: white;
+    		stroke-width: 2px;
+    	}
+    	
+		.portDot {
+			fill: #000;
+		}
+		.portHover {
+			fill: none;
+			pointer-events: all;
+		}
+		.port:hover .portHover {
+			fill: #777;
+		}
+		
+		.connection {
+			fill: red;
+			stroke: #000;
+			stroke-width:1px;
+		}
     </style>
 
 </head>
 <body>
-  <div class="container">
-  	<svg xmlns="http://www.w3.org/2000/svg" class="chart__content">
-	  <path class="chart__line" d="M20,50 L100,80 L200,40 L280,30"></path>
-	  <circle class="chart__circle" cx="20" cy="50" r="5"></circle>
-	  <circle class="chart__circle" cx="100" cy="80" r="5"></circle>
-	  <circle class="chart__circle" cx="200" cy="40" r="5"></circle>
-	  <circle class="chart__circle" cx="280" cy="30" r="5"></circle>
+  <div class="workspace">
+
+  	<svg xmlns="http://www.w3.org/2000/svg" class="workspaceElement">
+	  <polyline class="connection"
+	    points="100,160 100,250 200,250 200,340"></polyline>
+	</svg>	
+	
+  	<svg xmlns="http://www.w3.org/2000/svg" class="workspaceElement">
+	  <circle class="pumpIcon" cx="100" cy="100" r="50"></circle>
+	  <g class="port">
+		  <circle class="portHover" cx="100" cy="160" r="10"></circle>
+		  <circle class="portDot" cx="100" cy="160" r="5"></circle>
+	  </g>
 	</svg>
+	
+	<svg xmlns="http://www.w3.org/2000/svg" class="workspaceElement">
+	  <circle class="pumpIcon" cx="200" cy="400" r="50"></circle>
+	  <g class="port">
+		  <circle class="portHover" cx="200" cy="340" r="10"></circle>
+		  <circle class="portDot" cx="200" cy="340" r="5"></circle>
+	  </g>
+	</svg>
+	
+
+
   </div>
 </body>
 
