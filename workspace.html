@@ -3,6 +3,52 @@
 <head>
     <meta charset="utf-8">    
 	<script src="http://code.angularjs.org/1.1.5/angular.js"></script>
+	
+	<script>
+		var app = angular.module('workspace', []);
+		
+		var Port = function(position) {
+			this.position = position;
+		};
+		
+		var Connection = function(start, end) {
+			this.start = start;
+			this.end = end;	
+		};
+		
+		var Pump = function() {
+		 this.ports = [];	
+		 
+		};
+		
+		function createPump(position) {
+			var p = new Pump();
+			p.position = position;
+			p.ports.push(new Port({x : position.x, y : position.y + 60}));
+			return p;
+		}
+		
+		app.controller('WorkspaceController', function($scope){
+		  
+		  $scope.pumps = [
+		 	 createPump({x : 100, y : 200}),
+		 	 createPump({x : 200, y : 350})
+		  ];
+		  
+		  $scope.connections = [
+		  	new Connection($scope.pumps[0].ports[0], $scope.pumps[1].ports[0])
+		  ];
+		  
+		  $scope.points = function(connection) {
+		  	var b = connection.start.position;
+		  	var e = connection.end.position;
+		  	return b.x + "," + b.y + " " + e.x + "," + e.y;
+		  }
+		});
+		
+		
+	</script>
+	
     <style>
     	.workspace {
     		position: relative;
@@ -12,62 +58,70 @@
     	}
     	
     	.workspaceElement {
+    		width: 800px;
+    		height: 800px;
     		position: absolute;
     		left: 0px;
-    		top: 0 px;
+    		top: 0px;
     	}
     	.pumpIcon {
     		stroke: black;
     		fill: white;
     		stroke-width: 2px;
     	}
+    	.port {
+    		pointer-events: all;
+    	}
     	
 		.portDot {
 			fill: #000;
 		}
+		
 		.portHover {
-			fill: none;
-			pointer-events: all;
+			fill: none;			
 		}
+		
 		.port:hover .portHover {
 			fill: #777;
 		}
 		
 		.connection {
-			fill: red;
+			fill: none;
 			stroke: #000;
 			stroke-width:1px;
 		}
+		
     </style>
 
 </head>
 <body>
-  <div class="workspace">
+	
+  <div class="workspace" ng-controller="WorkspaceController">
 
   	<svg xmlns="http://www.w3.org/2000/svg" class="workspaceElement">
-	  <polyline class="connection"
-	    points="100,160 100,250 200,250 200,340"></polyline>
-	</svg>	
-	
-  	<svg xmlns="http://www.w3.org/2000/svg" class="workspaceElement">
-	  <circle class="pumpIcon" cx="100" cy="100" r="50"></circle>
-	  <g class="port">
-		  <circle class="portHover" cx="100" cy="160" r="10"></circle>
-		  <circle class="portDot" cx="100" cy="160" r="5"></circle>
-	  </g>
+  		
+	  <polyline class="connection" ng-repeat="c in connections"
+	    points="{{points(c)}}"></polyline>
+		
+	<g ng-repeat="p in pumps">
+		<circle class="pumpIcon" r="50"
+		        ng-attr-cx="{{p.position.x}}" 
+		        ng-attr-cy="{{p.position.y}}" ></circle>
+	  	<g class="port" ng-repeat="port in p.ports" >
+		  <circle class="portHover" r="10"
+			  ng-attr-cx="{{port.position.x}}" 
+			  ng-attr-cy="{{port.position.y}}" ></circle>	  		
+		  <circle class="portDot" r="5"
+			  ng-attr-cx="{{port.position.x}}" 
+			  ng-attr-cy="{{port.position.y}}" ></circle>
+	    </g>
+	</g>
 	</svg>
 	
-	<svg xmlns="http://www.w3.org/2000/svg" class="workspaceElement">
-	  <circle class="pumpIcon" cx="200" cy="400" r="50"></circle>
-	  <g class="port">
-		  <circle class="portHover" cx="200" cy="340" r="10"></circle>
-		  <circle class="portDot" cx="200" cy="340" r="5"></circle>
-	  </g>
-	</svg>
-	
-
-
   </div>
+
+
+
 </body>
 
 </html>
