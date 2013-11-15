@@ -18,6 +18,16 @@
 		
 		var Pump = function() {
 		 this.ports = [];	
+		 this.position = {x: 0, y: 0};
+		 this.moveTo = function(newPosition) {
+		     var diffX = newPosition.x - this.position.x;
+		     var diffY = newPosition.y - this.position.y;
+		     for(var i = 0, e = this.ports.length; i < e; ++i) {
+		         this.ports[i].position.x += diffX;
+		         this.ports[i].position.y += diffY;
+		     } 
+		     this.position = newPosition;
+		 };
 		 
 		};
 		
@@ -44,6 +54,38 @@
 		  	var e = connection.end.position;
 		  	return b.x + "," + b.y + " " + e.x + "," + e.y;
 		  }
+		  
+		  
+
+          $scope.clicked = undefined;
+          $scope.mouseDownPosition;
+          $scope.clickedPosition;
+
+          $scope.mousemove = function($event){
+            
+            if ($scope.clicked !== undefined)
+            {
+                var diffX = $event.layerX - $scope.mouseDownPosition.x;
+                var diffY = $event.layerY - $scope.mouseDownPosition.y;
+                $scope.clicked.moveTo(
+                    { x : $scope.clickedPosition.x + diffX,
+                      y : $scope.clickedPosition.y + diffY }
+                ); 
+                 
+            }
+          };
+          
+          $scope.mousedown = function(p, $event){
+            $scope.clicked = p;
+            $scope.mouseDownPosition = { x: $event.layerX, y: $event.layerY };
+            $scope.clickedPosition = { x: p.position.x, y: p.position.y};
+          };
+          
+          $scope.mouseup = function($event){
+            $scope.clicked = undefined;
+          };
+		  
+		  
 		});
 		
 		
@@ -96,7 +138,9 @@
 </head>
 <body>
 	
-  <div class="workspace" ng-controller="WorkspaceController">
+  <div class="workspace" ng-controller="WorkspaceController"
+       ng-mousemove="mousemove($event)" ng-mouseup="mouseup($event)">
+       <p>{{message}}</p>
 
   	<svg xmlns="http://www.w3.org/2000/svg" class="workspaceElement">
   		
@@ -105,6 +149,7 @@
 		
 	<g ng-repeat="p in pumps">
 		<circle class="pumpIcon" r="50"
+		        ng-mousedown="mousedown(p, $event)"
 		        ng-attr-cx="{{p.position.x}}" 
 		        ng-attr-cy="{{p.position.y}}" ></circle>
 	  	<g class="port" ng-repeat="port in p.ports" >
