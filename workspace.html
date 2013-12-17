@@ -65,6 +65,7 @@
       var p = new Pump();
       p.position = position;
       p.ports.push(new Port(new Vector(position.x, position.y + 60)));
+      p.ports.push(new Port(new Vector(position.x, position.y - 60)));
       return p;
     }
     
@@ -76,6 +77,22 @@
       return p;
     }
 
+    var WorkspaceDefaultState = function(workspace) {
+      this.workspace = workspace;
+      this.clicked = undefined;
+      this.mouseDownPosition = undefined;
+      this.clickedPosition = undefined;    
+    };
+
+    WorkspaceDefaultState.prototype.handleMouseDown = function(element, $event) {
+      this.clicked = element;
+      this.mouseDownPosition = new Vector($event.layerX, $event.layerY);
+      this.clickedPosition = new Vector(element.position.x, element.position.y);
+      $event.preventDefault();
+      this.workspace.message = "down\n";
+      return false;
+    };
+
     app.controller('WorkspaceController', function($scope){
       $scope.input = "";
       $scope.elements = [
@@ -85,11 +102,12 @@
       ];
       
       $scope.message = $scope.elements[1].elementType;
+      $scope.workspaceState = new WorkspaceDefaultState($scope);
 
       $scope.connections = [
-        new Connection($scope.elements[0].ports[0], $scope.elements[1].ports[0]),
-        new Connection($scope.elements[0].ports[0], $scope.elements[2].ports[0]),
-        new Connection($scope.elements[1].ports[0], $scope.elements[2].ports[1])
+        new Connection($scope.elements[0].ports[0], $scope.elements[1].ports[1]),
+        new Connection($scope.elements[0].ports[1], $scope.elements[2].ports[1]),
+        new Connection($scope.elements[1].ports[0], $scope.elements[2].ports[0])
       ];
       
       $scope.points = function(connection) {
@@ -117,12 +135,7 @@
       };
       
       $scope.mousedown = function(p, $event){
-        $scope.clicked = p;
-        $scope.mouseDownPosition = new Vector($event.layerX, $event.layerY);
-        $scope.clickedPosition = new Vector(p.position.x, p.position.y);
-        $event.preventDefault();
-        $scope.message = "down\n";
-        return false;
+        return $scope.workspaceState.handleMouseDown(p, $event);
       };
       
       $scope.mouseup = function($event){
