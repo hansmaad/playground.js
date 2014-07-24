@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8" />
+</head>
+<body ng-app="testApp">
+
+<div ng-controller="testController">
+  <input ng-model="value" type="number" />
+  <quantitycontrol ng-model="value" />
+</div>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.js"></script>
+  <script>
+    var app = angular.module("testApp", []);
+    app.controller('testController', function ($scope) {
+      $scope.value = 1e+200;
+      $scope.type = function() {
+        return typeof $scope.value;
+      }
+    });
+    app.directive('quantitycontrol', function() {
+      return {
+          // can be used as attribute or element
+          restrict: 'E',
+          scope: {
+              value: '=ngModel'
+          },
+          // which markup this directive generates
+          template: '<input ng-model="value" ng-change="onChange()"  />' +
+                    '<span>{{ test }}</span>',
+
+          link : function(scope, element, attr) {
+            scope.test = scope.value;
+            scope.onChange = function() {
+              var num = parseFloat(scope.value);
+              if (isNaN(num))
+                scope.test = "invalid";
+              else
+                scope.test = num;
+            }
+          }
+      };
+    });
+
+
+  
+  </script>
+</body>
+</html>
