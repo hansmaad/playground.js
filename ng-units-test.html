@@ -1,0 +1,26 @@
+<!doctype html>
+<html ng-app="app">
+<head>
+    <meta charset="utf-8">    
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.js"></script>
+    <script src="ng-units.js"></script>
+
+    <script type="text/javascript">
+        angular.module("app", ["ngUnits"])
+            .controller("testController", function($scope) {
+                $scope.length = 123;
+            });
+    </script>
+    
+    <style>
+
+    </style>
+
+</head>
+<body ng-controller="testController">
+    <h1>Hello World</h1>
+    <input ng-model="length" type="number" />
+    <quantity value="length"></quantity>
+</body>
+
+</html>
