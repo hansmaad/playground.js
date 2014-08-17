@@ -1,0 +1,327 @@
+<!doctype html>
+<html ng-app="workspace">
+<head>
+  <meta charset="utf-8">    
+  <!--<script src="http://code.angularjs.org/1.1.5/angular.js"></script>-->
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular-touch.js"></script>
+  <script>
+    var app = angular.module('workspace', ['ngTouch']);
+    
+    var Vector = function(x, y) {
+      this.x = x === undefined ? 0 : x;
+      this.y = y === undefined ? 0 : y;      
+    };
+
+    Vector.prototype.plus = function(other) {
+      return new Vector(this.x + other.x, this.y + other.y);
+    };
+
+    Vector.prototype.minus = function(other) {
+      return new Vector(this.x - other.x, this.y - other.y);
+    };
+
+    var Port = function(position) {
+      this.position = position;
+      this.updatePosition = function(diff) {
+        this.position = this.position.plus(diff);
+      }
+    };
+    
+    var Connection = function(start, end) {
+      this.start = start;
+      this.end = end;  
+    };
+    
+
+    var Element = function() {
+      this.ports = [];  
+      this.position = new Vector();    
+    };
+
+    Element.prototype.moveTo = function(newPosition) {        
+      var diff = newPosition.minus(this.position);
+      for(var i = 0, e = this.ports.length; i < e; ++i) {
+        this.ports[i].updatePosition(diff);             
+      } 
+      this.position = newPosition;
+    };
+
+    var Pump = function() {
+      Element.call(this);
+      this.elementType = "Pump";
+    };
+    Pump.prototype = Object.create(Element.prototype);
+
+
+    var Pipe = function() {
+      Element.call(this);
+      this.elementType = "Pipe";
+    };
+    Pipe.prototype = Object.create(Element.prototype);
+
+    
+    function createPump(position) {
+      var p = new Pump();
+      p.position = position;
+      p.ports.push(new Port(new Vector(position.x, position.y + 60)));
+      p.ports.push(new Port(new Vector(position.x, position.y - 60)));
+      return p;
+    }
+    
+    function createPipe(position) {
+      var p = new Pipe();
+      p.position = position;
+      p.ports.push(new Port(new Vector(position.x + 10, position.y + 60)));
+      p.ports.push(new Port(new Vector(position.x + 10, position.y - 10)));
+      return p;
+    }
+
+    var WorkspaceDefaultState = function(workspace) {
+      this.workspace = workspace;
+      this.clicked = undefined;
+      this.mouseDownPosition = undefined;
+      this.clickedPosition = undefined;    
+    };
+
+    WorkspaceDefaultState.prototype.handleMouseDown = function(element, $event) {
+      this.clicked = element;
+      this.mouseDownPosition = new Vector($event.layerX, $event.layerY);
+      this.clickedPosition = new Vector(element.position.x, element.position.y);
+      $event.preventDefault();
+      this.workspace.message = "down\n";
+      return false;
+    };
+
+    app.controller('WorkspaceController', function($scope){
+      $scope.input = "";
+      $scope.elements = [
+        createPump(new Vector(100, 200)),
+        createPump(new Vector(200, 350)),
+        createPipe(new Vector(400, 200))
+      ];
+      
+      $scope.message = $scope.elements[1].elementType;
+      $scope.workspaceState = new WorkspaceDefaultState($scope);
+
+      $scope.connections = [
+        new Connection($scope.elements[0].ports[0], $scope.elements[1].ports[1]),
+        new Connection($scope.elements[0].ports[1], $scope.elements[2].ports[1]),
+        new Connection($scope.elements[1].ports[0], $scope.elements[2].ports[0])
+      ];
+      
+      $scope.points = function(connection) {
+        var b = connection.start.position;
+        var e = connection.end.position;
+        return b.x + "," + b.y + " " + e.x + "," + e.y;
+      };
+
+      $scope.clicked = undefined;
+      $scope.mouseDownPosition;
+      $scope.clickedPosition;
+
+      $scope.mousemove = function($event){
+        //$scope.message = "move";
+        //$scope.$apply();
+
+        if ($scope.clicked !== undefined)
+        {
+            var diffX = $event.layerX - $scope.mouseDownPosition.x;
+            var diffY = $event.layerY - $scope.mouseDownPosition.y;
+            $scope.clicked.moveTo(new Vector(
+                $scope.clickedPosition.x + diffX,
+                $scope.clickedPosition.y + diffY)); 
+        }        
+      };
+      
+      $scope.mousedown = function(p, $event){
+        return $scope.workspaceState.handleMouseDown(p, $event);
+      };
+      
+      $scope.mouseup = function($event){
+        $scope.clicked = undefined;
+        $scope.message = "up\n";
+      };
+      
+      $scope.click = function($event){        
+        $scope.message = "click\n";
+      };
+
+      $scope.keyPress = function($event){                
+       if ($event.keyCode === 13) {  // Enter
+          if ($scope.input.toLowerCase() === "pump") {
+            $scope.elements.push(createPump(new Vector(300, 275)));
+          }
+          if ($scope.input.toLowerCase() === "pipe") {
+            $scope.elements.push(createPipe(new Vector(300, 275)));
+          }
+          $scope.input = "";
+        }
+      };
+    });
+    
+    
+  </script>
+  
+  <style>
+    html body{
+      margin:10px;
+      padding: 0;
+    }
+
+    .workspace {
+      /*position: relative;*/
+      height: 100%;
+      width: 100%;
+      background: #ddd;
+    }
+    
+    .workspaceElement {
+      position: absolute;
+      left: 0px;
+      top: 0px;
+    }
+
+    .workspaceCanvas {
+      height:100%; 
+      width:100%; 
+      /*background:#f1f1f1;*/
+      background-image: linear-gradient(#9caac1 0%, #fff 100%);
+    }
+
+    .workSpaceShape {
+      stroke: black;
+      fill: white;
+      stroke-width: 2px;
+    }
+
+    .pumpIcon {
+      
+    }
+
+    .port {
+      pointer-events: all;
+    }
+      
+    .portDot {
+      fill: #000;
+    }
+    
+    .portHover {
+      fill: none;      
+    }
+    
+    .port:hover .portHover {
+      fill: #777;
+    }
+    
+    .connection {
+      fill: none;
+      stroke: #000;
+      stroke-width:1px;
+    }
+    
+    .searchField {
+      color: #333;
+      font-family: 'Segoe UI', Calibri, Verdana;
+      font-size: 1.2em; 
+      font-weight: normal;
+      width: 400px;
+      margin:0;
+      padding:0 .3em;
+      height:30px;
+      border: 0;
+      box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
+      vertical-align: top;
+    }
+
+    .toolbarButton {
+      color: #eee;
+      background-color: #595959;
+      margin:0;
+      padding:0 .3em;
+      height:30px;
+      border: 0;
+      box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
+      vertical-align: top;
+    }
+    .searchButton {
+      font-size: 1.6em; 
+      width:40px;
+    }
+    .toolbarButton:hover {
+      background-color: #5f5f5f;
+    }
+    .toolbarButton:active {
+     background-color: #535353;
+    }
+  </style>
+
+</head>
+<body ng-controller="WorkspaceController">
+    <form style="position:absolute; top:10px; left:10px; z-index:1000; ">
+      <div>
+        <button class="toolbarButton searchButton" >+</button><input class="searchField"
+              type="text" ng-model="input" 
+              ng-keypress="keyPress($event)"/>   
+        <button class="toolbarButton">Operating Point</button>
+        <button class="toolbarButton">Pump Down</button>
+      </div>
+      <div ng-show="" >
+
+      </div>
+      <!--<pre style="font-size:1.3em;margin:0; border:1px solid silver; border-top:0; padding:3px;">
+        {{message}}
+      </pre>      -->
+    </form>
+  <div class="workspace" 
+      ng-click="click($event)"
+      ng-mousemove="mousemove($event)" ng-mouseup="mouseup($event)">
+       
+    <svg xmlns="http://www.w3.org/2000/svg" class="workspaceElement workspaceCanvas"
+      preserveAspectRatio="none"
+      style="">
+
+    <polyline class="connection" ng-repeat="c in connections"
+      ng-attr-points="{{points(c)}}"></polyline>
+    
+    <g ng-repeat="p in elements" >
+
+      <g ng-switch="p.elementType">
+        <g ng-switch-when="Pump">
+          <circle class="workSpaceShape pumpIcon" r="50"
+                ng-mousedown="mousedown(p, $event)"
+                ng-attr-cx="{{p.position.x}}" 
+                ng-attr-cy="{{p.position.y}}" ></circle>
+          <g class="port" ng-repeat="port in p.ports" >
+            <circle class="portHover" r="10"
+              ng-attr-cx="{{port.position.x}}" 
+              ng-attr-cy="{{port.position.y}}" ></circle>        
+            <circle class="portDot" r="5"
+              ng-attr-cx="{{port.position.x}}" 
+              ng-attr-cy="{{port.position.y}}" ></circle>
+          </g>
+        </g>
+
+
+        <g ng-switch-when="Pipe">
+          <rect class="workSpaceShape" width="20" height="50" 
+                ng-mousedown="mousedown(p, $event)"
+                ng-attr-x="{{p.position.x}}" 
+                ng-attr-y="{{p.position.y}}" ></rect>
+          <g class="port" ng-repeat="port in p.ports" >
+            <circle class="portHover" r="10"
+              ng-attr-cx="{{port.position.x}}" 
+              ng-attr-cy="{{port.position.y}}" ></circle>        
+            <circle class="portDot" r="5"
+              ng-attr-cx="{{port.position.x}}" 
+              ng-attr-cy="{{port.position.y}}" ></circle>
+          </g>
+        </g>
+     </g>
+    </g>
+
+  </svg>
+  </div>
+</body>
+</html>

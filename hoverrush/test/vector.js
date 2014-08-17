@@ -38,6 +38,35 @@ describe("Vector", function() {
   		expect(a.norm()).toBe(1);
   	});
   	
-  });
+  });  // norm
+  
+  describe("projectionOnto", function(){
+  	
+  	it("is projected vector", function(){
+  		var a = new Vector(5, 0);
+  		var b = new Vector(1, 1);
+  		var c = b.projectionOnto(a);
+  		expect(c.x).toBe(1);
+  		expect(c.y).toBe(0);
+  	});
+  	
+  	it("is null vector for orthognal vectors", function(){
+  		var a = new Vector(1, 0);
+  		var b = new Vector(0, 2);
+  		var c = b.projectionOnto(a);
+  		expect(c.x).toBe(0);
+  		expect(c.y).toBe(0);
+  	});
+  	
+  	  	it("is -projected vector", function(){
+  		var a = new Vector(1, -1);
+  		var b = new Vector(0, 2);
+  		var c = b.projectionOnto(a);
+  		expect(c.x).toBe(-1);
+  		expect(c.y).toBe(1);
+  	});
+  	
+  });  // projectionOnto
+  
   
 });
