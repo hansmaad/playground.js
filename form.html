@@ -1,0 +1,221 @@
+<!doctype html>
+<html ng-app="workspace">
+<head>
+  <meta charset="utf-8">    
+  <script src="http://code.angularjs.org/1.2.4/angular.js"></script>
+  <script>
+
+    var questions = [
+      {
+        "name" : "Alter",
+        "question" : "Wie alt bist Du?",
+        "answerType" : "Number"
+      },
+      {
+        "question" : "Wie gehts?"
+      },
+      {
+        "question" : "Geschlecht",        
+        "answerType" : "Choice",        
+        "options" : ["M", "W"],
+        "answer" : "M"
+      },
+      {
+        "name" : "Führerschein",
+        "question" : "Hast Du einen Führerschein?",
+        "answerType" : "YesNo",
+        "conditions" : 
+        [ 
+          { 
+            "question" : "Alter",
+            "expression" : { "type" : "greater", "value" : 17 }
+          } 
+        ]
+      },
+      {
+        "name" : "Auto",
+        "question" : "Welches Auto fährst Du?",
+        "answerType" : "Choice",
+        "options" : ["Audi", "BMW", "Ford", "Trabant", "Mercedes", "Toyota"],
+        "conditions" : 
+        [ 
+          { 
+            "question" : "Führerschein",
+            "answers" : [true]
+          },
+          { 
+            "question" : "Alter",
+            "expression" : { "type" : "greater", "value" : 17 }
+          } 
+        ]
+      }
+      ,
+      {
+        "question" : "Ja order nein",
+        "answerType" : "Choice",
+        "options" : ["ja", "nein"]
+      }
+    ];
+
+
+
+
+
+
+    var answerOf = function(questionName) {
+      for(var i = 0, e = questions.length; i < e; ++i) {
+        if (questions[i].name === questionName)
+          return questions[i].answer;
+      }
+    };
+
+    var evaluateExpression = function(expression, answer) {
+      if (expression.type === "greater")
+        return answer > expression.value;
+      if (expression.type === "less")
+        return answer < expression.value;
+    };
+
+    var isTrue = function(condition) {
+        var answer = answerOf(condition.question); 
+
+        if (condition.answers !== undefined) 
+          return condition.answers.indexOf(answer) !== -1;
+
+        if (condition.expression !== undefined) 
+          return evaluateExpression(condition.expression, answer);
+    };
+
+
+
+    var app = angular.module('workspace', []); 
+    app.controller('FormController', function($scope){
+      $scope.questions = questions; 
+    
+      $scope.show = function(question) {
+        if (question.conditions === undefined)
+          return true;
+
+        return question.conditions.every(function(condition) {
+          return isTrue(condition);          
+        });
+      };
+
+      $scope.send = function() {
+        var answers = $scope.questions.filter(function(q) {
+          return $scope.show(q) && q.answer !== undefined;
+        }).map(function(q) { 
+          return q.question + ": " + q.answer;
+        }).join("\n");
+
+
+        var link = "mailto:daniel.schneidenbach@oerlikon.com"                 
+                 + "&subject=Application Report"
+                 + "&body=" + escape(answers.replace(/[^A-Za-z0-9: \r\n]/g, ""));
+        ;
+
+        window.location.href = link;
+
+        return false;
+      }
+
+    });
+  </script>
+  
+  <style>
+    html { 
+      height: 100%; background: #eee; margin:0; padding:0; 
+    }
+    body { 
+      min-height: 100%; 
+      width: 800px; 
+      margin: 0 auto; /* center */ 
+      padding: 0px 20px;
+      background: #fff;
+      font-family: Calibri, Helvectica;
+    }
+    h1, h2, h3 {
+     font-weight: normal;
+    }
+    h1 { font-size: 3em;}
+    h2 { font-size: 1.8em;}
+    h3 { font-size: 1.3em;}
+    .underline {
+      border-bottom: 1px solid #ccc;
+    }
+    ul {
+      background-color: #fff;
+      padding:0 0;
+    }
+    li {
+      padding:.5em 1em 1em 1em;
+      margin:1em 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-bottom: 2px solid #ddd;
+      border-radius: 2px;
+      /*box-shadow: 0px 1px 0px #ccc;*/
+      list-style: none;
+    }
+    li p {
+      padding:0;
+      margin:0;
+      margin-bottom: 0.2em;
+    }
+    input[type="text"] {
+      min-width: 150px;
+    }
+    select {
+      min-width: 150px;
+    }
+    input[type="submit"],
+    input[type="button"],
+    button {
+      background-color: #eee;
+      border: 2px solid #ddd;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: normal;
+      padding: 7px;
+      margin-right: 8px;
+      width: auto;
+    }
+  </style>
+
+</head>
+
+<body ng-controller="FormController">
+  
+  <h1 class="underline">
+    <img src="http://intranet.oerlikon.com/ecomaXL/pics/bg_logo_oerlikon.png" alt="oerlikon icon"
+       style="border: 0; margin-right: 25px;"/>
+    Application Report
+  </h1>
+     
+  <h2>Fragen</h2>
+  <ul>
+    <li ng-repeat="q in questions" ng-show="show(q)">
+      <p >{{q.question}}</p>
+      <div ng-switch="q.answerType">
+        <input ng-switch-when="Number" type="number" ng-model="q.answer"> </input>
+        <input ng-switch-default type="text" ng-model="q.answer"> </input>
+        <input ng-switch-when="Boolean" type="checkbox" ng-model="q.answer"> </input>
+        <select ng-switch-when="Choice" 
+                ng-options="opt for opt in q.options" 
+                ng-model="q.answer"> </select>
+
+        <input ng-switch-when="YesNo" ng-model="q.answer" type="checkbox"></input>
+      </div>
+    </li>
+  </ul>
+
+  <button ng-click="send()">Absenden</button>
+  <h2>Antworten</h2>
+  <ul>
+    <li ng-repeat="q in questions" ng-show="show(q) && q.answer !== undefined">
+      <p>{{q.question}} : {{q.answer}}</p>
+    </li>
+  </ul>
+
+</body>
+</html>

@@ -1,21 +1,19 @@
 angular.module('ngUnits', [])
  .directive('quantity', function() {
-    
-   var input = undefined;
-   
-    var getValue = function() {
-      return Number(input.val());
+    var input = undefined;
+
+    var getValue = function() {      
+      var str = input.val().replace(",", ".");
+      return Number(str);
     };
    
     var setValue = function(value) {
-      input.val(value);  
+      input.val(value);
     };
    
-
-    
     var updateTarget = function(scope) {
       var value = getValue();
-      var converted = scope.value * 2;
+      var converted = scope.fromBase(scope.value);
       if (scope.value && converted != value)
          setValue(converted);
     };
@@ -29,20 +27,20 @@ angular.module('ngUnits', [])
         }
         else {
           scope.$apply( function() {
-            scope.value = value * 0.5;
+            scope.value = scope.toBase(value);
           })
         }         
     }; 
-     
+
     return {
       restrict: 'E',
       replace: 'true',
       scope : {
-          value : "="
+          value : "=",
+          quantity : "=?"
       },
-      template: '<div><input /> <span>mm</span></div>',
+      template: '<div><input /> <span>{{ quantity.units[quantity.unit].symbol }}</span></div>',
       link : function(scope, elem, attr) {
-        
         input = elem.find("input");
 
         input.bind('blur', function() {
@@ -55,10 +53,31 @@ angular.module('ngUnits', [])
                 event.preventDefault();
             }
         });
-                        
+
+        if (scope.quantity === undefined) {
+          scope.quantity = {
+            "units" : [{ "symbol" : "", "factor" : 1, "offset" : 0 }],
+            "unit" : 0
+          };
+        }
+
         scope.$watch("value", function() {
             updateTarget(scope);
         });
+
+        scope.currentUnit = function() {
+          return scope.quantity.units[scope.quantity.unit];
+        };
+
+        scope.fromBase = function(value) {
+         var unit = scope.currentUnit();
+         return value * unit.factor;
+        };
+
+        scope.toBase = function(value) {
+         var unit = scope.currentUnit();
+         return value / unit.factor;
+        };
           
         updateTarget(scope);
       }

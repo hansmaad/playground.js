@@ -9,6 +9,17 @@
         angular.module("app", ["ngUnits"])
             .controller("testController", function($scope) {
                 $scope.length = 123;
+                var n = 1.1;
+                $scope.separator = n.toLocaleString().substring(1, 2);
+
+                $scope.test = function() {
+                    return Math.round($scope.length);
+                }
+
+                $scope.quantity = {
+                    "units" : [ { "symbol" : "mm", "factor" : 1000, "offset" : 0 }],
+                    "unit" : 0
+                };
             });
     </script>
     
@@ -19,8 +30,10 @@
 </head>
 <body ng-controller="testController">
     <h1>Hello World</h1>
+    <p>Your decimal separator is <strong>{{ separator }}</strong></p>
     <input ng-model="length" type="number" />
-    <quantity value="length"></quantity>
+    <quantity value="length" quantity="quantity"></quantity>
+    <p>{{ test() }}</p>
 </body>
 
 </html>
