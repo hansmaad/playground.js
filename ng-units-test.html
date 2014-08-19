@@ -16,23 +16,35 @@
                     return Math.round($scope.length);
                 }
 
-                $scope.quantity = {
+                $scope.quantities = [
+                  {
                     "units" : [ { "symbol" : "mm", "factor" : 1000, "offset" : 0 }],
                     "unit" : 0
-                };
+                  },
+                  {
+                    "units" : [ { "symbol" : "cm", "factor" : 100, "offset" : 0 }],
+                    "unit" : 0
+                  },
+                ];
+
+                $scope.quantity = $scope.quantities[0];
             });
     </script>
     
     <style>
-
+        .red {
+            color : #c30000;
+        }
     </style>
 
 </head>
 <body ng-controller="testController">
     <h1>Hello World</h1>
-    <p>Your decimal separator is <strong>{{ separator }}</strong></p>
+    <p class="red">Your decimal separator is <strong>{{ separator }}</strong></p>
+
+    Length unit: <select ng-model="quantity" ng-options="q.units[q.unit].symbol for q in quantities"></select><br/>
     <input ng-model="length" type="number" />
-    <quantity value="length" quantity="quantity"></quantity>
+    <ng-quantity value="length" quantity="quantity"></ng-quantity>
     <p>{{ test() }}</p>
 </body>
 

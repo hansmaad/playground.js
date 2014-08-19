@@ -1,5 +1,12 @@
-angular.module('ngUnits', [])
- .directive('quantity', function() {
+(function(ngUnits, undefined) {
+
+  ngUnits.Quantity = function(name, units) {
+    this.name = name;
+    this.units = units;
+  };
+  
+  
+  ngUnits.ngQuantity = function() {
     var input = undefined;
 
     var getValue = function() {      
@@ -65,6 +72,10 @@ angular.module('ngUnits', [])
             updateTarget(scope);
         });
 
+        scope.$watch("quantity", function() {
+            updateTarget(scope);
+        });
+
         scope.currentUnit = function() {
           return scope.quantity.units[scope.quantity.unit];
         };
@@ -81,5 +92,34 @@ angular.module('ngUnits', [])
           
         updateTarget(scope);
       }
+    };
   };
-});
+  
+  
+  
+
+}) 
+(window.ngUnits = window.ngUnits || {}, undefined);
+
+angular.module('ngUnits', [])
+  .directive('ngQuantity', ngUnits.ngQuantity)
+  .factory("systemOfUnits", function() {
+  
+    var quantities = {};
+    
+    var getQuantity = function(name) {
+      return quantities[name];
+    };
+    
+    var addQuantity = function(quantity) {
+      quantites[quantity.name] = quantity;  
+    };
+    
+    
+    
+    return {
+      "getQuantity" : getQuantity,
+      "addQuantity" : addQuantity
+    };
+  
+  });
