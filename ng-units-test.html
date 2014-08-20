@@ -7,7 +7,8 @@
 
     <script type="text/javascript">
         angular.module("app", ["ngUnits"])
-            .controller("testController", function($scope) {
+            .controller("testController", ["$scope", "systemOfUnits", 
+                                           function($scope, systemOfUnits) {
                 $scope.length = 123;
                 var n = 1.1;
                 $scope.separator = n.toLocaleString().substring(1, 2);
@@ -16,19 +17,8 @@
                     return Math.round($scope.length);
                 }
 
-                $scope.quantities = [
-                  {
-                    "units" : [ { "symbol" : "mm", "factor" : 1000, "offset" : 0 }],
-                    "unit" : 0
-                  },
-                  {
-                    "units" : [ { "symbol" : "cm", "factor" : 100, "offset" : 0 }],
-                    "unit" : 0
-                  },
-                ];
-
-                $scope.quantity = $scope.quantities[0];
-            });
+                $scope.quantity = systemOfUnits.getQuantity("Length");
+            }]);
     </script>
     
     <style>
@@ -42,7 +32,6 @@
     <h1>Hello World</h1>
     <p class="red">Your decimal separator is <strong>{{ separator }}</strong></p>
 
-    Length unit: <select ng-model="quantity" ng-options="q.units[q.unit].symbol for q in quantities"></select><br/>
     <input ng-model="length" type="number" />
     <ng-quantity value="length" quantity="quantity"></ng-quantity>
     <p>{{ test() }}</p>

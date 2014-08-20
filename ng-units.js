@@ -1,5 +1,20 @@
 (function(ngUnits, undefined) {
 
+  ngUnits.SimpleUnit = function(symbol, factor, offset) {
+    this.symbol = symbol;
+    this._factor = factor === undefined ? 1 : factor;
+    this._offset = offset === undefined ? 0 : offset;
+  };
+  
+  ngUnits.SimpleUnit.prototype.fromBase = function(value) {
+    return (value + this._offset) / this._factor;
+  };
+  
+  ngUnits.SimpleUnit.prototype.toBase = function(value) {
+    return value * this._factor - this._offset;
+  };
+  
+  
   ngUnits.Quantity = function(name, units) {
     this.name = name;
     this.units = units;
@@ -19,22 +34,22 @@
     };
    
     var updateTarget = function(scope) {
-      var value = getValue();
+      var viewValue = getValue();
       var converted = scope.fromBase(scope.value);
-      if (scope.value && converted != value)
+      if (scope.value && converted != viewValue)
          setValue(converted);
     };
      
     var updateSource = function(scope) {
-        var value = getValue();
-        if (isNaN(value)) {
+        var viewValue = getValue();
+        if (isNaN(viewValue)) {
           scope.$apply( function() {
             scope.value = undefined;
           });
         }
         else {
           scope.$apply( function() {
-            scope.value = scope.toBase(value);
+            scope.value = scope.toBase(viewValue);
           })
         }         
     }; 
@@ -44,9 +59,10 @@
       replace: 'true',
       scope : {
           value : "=",
-          quantity : "=?"
+          quantity : "="
       },
-      template: '<div><input /> <span>{{ quantity.units[quantity.unit].symbol }}</span></div>',
+      template: '<div><input /> \
+                <select ng-model="selectedUnit" ng-options="unit.symbol for unit in quantity.units"/></select></div>',
       link : function(scope, elem, attr) {
         input = elem.find("input");
 
@@ -61,13 +77,6 @@
             }
         });
 
-        if (scope.quantity === undefined) {
-          scope.quantity = {
-            "units" : [{ "symbol" : "", "factor" : 1, "offset" : 0 }],
-            "unit" : 0
-          };
-        }
-
         scope.$watch("value", function() {
             updateTarget(scope);
         });
@@ -75,19 +84,28 @@
         scope.$watch("quantity", function() {
             updateTarget(scope);
         });
+        
+        scope.$watch("selectedUnit", function() {
+            updateTarget(scope);
+        });
+        
+        scope.selectedUnit = scope.quantity.units[0];
 
         scope.currentUnit = function() {
-          return scope.quantity.units[scope.quantity.unit];
+          return scope.selectedUnit;
+          //return scope.quantity.units[0];
         };
 
         scope.fromBase = function(value) {
-         var unit = scope.currentUnit();
-         return value * unit.factor;
+          var unit = scope.currentUnit();
+          var view = unit.fromBase(value);
+          return view;
         };
 
         scope.toBase = function(value) {
-         var unit = scope.currentUnit();
-         return value / unit.factor;
+          var unit = scope.currentUnit();
+          var base = unit.toBase(value);
+          return base;
         };
           
         updateTarget(scope);
@@ -112,10 +130,14 @@ angular.module('ngUnits', [])
     };
     
     var addQuantity = function(quantity) {
-      quantites[quantity.name] = quantity;  
+      quantities[quantity.name] = quantity;  
     };
     
-    
+    addQuantity(new ngUnits.Quantity("Length", [
+      new ngUnits.SimpleUnit("m", 1),
+      new ngUnits.SimpleUnit("cm", 0.01),
+      new ngUnits.SimpleUnit("mm", 0.001),
+    ]));
     
     return {
       "getQuantity" : getQuantity,
