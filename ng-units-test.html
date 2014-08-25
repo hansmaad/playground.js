@@ -2,7 +2,7 @@
 <html ng-app="app">
 <head>
     <meta charset="utf-8">    
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.js"></script>
     <script src="ng-units.js"></script>
 
     <script type="text/javascript">
@@ -10,14 +10,23 @@
             .controller("testController", ["$scope", "systemOfUnits", 
                                            function($scope, systemOfUnits) {
                 $scope.length = 123;
+                $scope.pressure = 321;
                 var n = 1.1;
                 $scope.separator = n.toLocaleString().substring(1, 2);
 
                 $scope.test = function() {
                     return Math.round($scope.length);
                 }
+                systemOfUnits.addQuantity(
+                  {
+                    name : "funky",
+                    units : [
+                      systemOfUnits.simpleUnit("A"),
+                      systemOfUnits.simpleUnit("B", 2)
+                      ]
+                  });
 
-                $scope.quantity = systemOfUnits.getQuantity("Length");
+
             }]);
     </script>
     
@@ -33,7 +42,9 @@
     <p class="red">Your decimal separator is <strong>{{ separator }}</strong></p>
 
     <input ng-model="length" type="number" />
-    <ng-quantity value="length" quantity="quantity"></ng-quantity>
+    <ng-quantity value="length" quantity="length"></ng-quantity>
+  
+    <ng-quantity value="length" quantity="funky"></ng-quantity>
     <p>{{ test() }}</p>
 </body>
 

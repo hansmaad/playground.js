@@ -20,10 +20,9 @@
     this.units = units;
   };
   
-  
-  ngUnits.ngQuantity = function() {
+  ngUnits.ngQuantity = function(systemOfUnits) {
+    
     var input = undefined;
-
     var getValue = function() {      
       var str = input.val().replace(",", ".");
       return Number(str);
@@ -52,24 +51,29 @@
             scope.value = scope.toBase(viewValue);
           })
         }         
-    }; 
+    };
+    
+    var updateQuantity = function(scope) {
+      scope.quantityInstance = typeof scope.quantity == "string" ? 
+          systemOfUnits.getQuantity(scope.quantity) : scope.quantity;
+    };
 
     return {
       restrict: 'E',
       replace: 'true',
       scope : {
           value : "=",
-          quantity : "="
+          quantity : "@"
       },
       template: '<div><input /> \
-                <select ng-model="selectedUnit" ng-options="unit.symbol for unit in quantity.units"/></select></div>',
+                <select ng-model="selectedUnit" ng-options="unit.symbol for unit in quantityInstance.units"/></select></div>',
       link : function(scope, elem, attr) {
         input = elem.find("input");
 
         input.bind('blur', function() {
           updateSource(scope);          
         });
-        
+                
         input.bind("keydown keypress", function (event) {
             if(event.which === 13) {
                 updateSource(scope);
@@ -83,17 +87,19 @@
 
         scope.$watch("quantity", function() {
             updateTarget(scope);
+            updateQuantity(scope);
         });
         
         scope.$watch("selectedUnit", function() {
             updateTarget(scope);
         });
-        
-        scope.selectedUnit = scope.quantity.units[0];
+    
+        updateQuantity(scope);
+    
+        scope.selectedUnit = scope.quantityInstance.units[0];
 
         scope.currentUnit = function() {
           return scope.selectedUnit;
-          //return scope.quantity.units[0];
         };
 
         scope.fromBase = function(value) {
@@ -111,6 +117,8 @@
         updateTarget(scope);
       }
     };
+ 
+    ngUnits.ngQuantity.$inject = ["systemOfUnits"];
   };
   
   
@@ -126,22 +134,33 @@ angular.module('ngUnits', [])
     var quantities = {};
     
     var getQuantity = function(name) {
-      return quantities[name];
+      return quantities[name.toLowerCase()];
     };
     
     var addQuantity = function(quantity) {
-      quantities[quantity.name] = quantity;  
+      quantities[quantity.name.toLowerCase()] = quantity;  
+    };
+    
+    var simpleUnit = function(symbol, factor, offset) {
+      return new ngUnits.SimpleUnit(symbol, factor, offset);
     };
     
     addQuantity(new ngUnits.Quantity("Length", [
-      new ngUnits.SimpleUnit("m", 1),
-      new ngUnits.SimpleUnit("cm", 0.01),
-      new ngUnits.SimpleUnit("mm", 0.001),
+      simpleUnit("m", 1),
+      simpleUnit("cm", 0.01),
+      simpleUnit("mm", 0.001),
+    ]));
+      
+    addQuantity(new ngUnits.Quantity("Pressure", [
+      simpleUnit("Pa", 1),
+      simpleUnit("bar", 10000),
+      simpleUnit("mbar", 100),
     ]));
     
     return {
       "getQuantity" : getQuantity,
-      "addQuantity" : addQuantity
+      "addQuantity" : addQuantity,
+      "simpleUnit" : simpleUnit
     };
   
   });
