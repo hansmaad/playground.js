@@ -8,8 +8,8 @@
       angular.module("app", ["lvTable"])
         .controller("myController", function($scope) {
           $scope.items = [
-            { id : 1, name : "klaus" },
-            { id : 2, name : "hans" },
+            { id : 1, name : "klaus", age : 52 },
+            { id : 2, name : "hans", age : 102 },
             { id : 3, name : "uwe" }
             
           ];
@@ -17,17 +17,25 @@
           $scope.options = {
             data : $scope.items,
             columns: [
-              { field:'id', displayName:'ID', template : "<a href=''>{{ row.id }}</a>" }, 
-              { field:'name', displayName:'Name' }
+              { field:'id', display:'ID', template : "<a href=''>{{ row.id }}</a>" }, 
+              { field:'name', display:'Name' },
+              { field: 'age', display:"Age", template :"<input ng-model='row.age' />" }
             ]
           };
         });
     </script>
   
     <link href="lv-table.css" rel="stylesheet">
+    <style>
+      html {
+        font-family:'Helvetica';
+      }
+     
+    </style>
   </head>
   
   <body ng-app="app" ng-controller="myController">
     <div lv-table="options"></div>
+    <p>Change name: <input ng-model="items[0].name" /></p>
   </body>
 </html>

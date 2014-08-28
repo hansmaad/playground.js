@@ -32,6 +32,12 @@ angular.module("lvTable", [])
       },
       link : function(scope, elem, attr) {
         scope.columns = scope.lvTable.columns || makeColumns(scope.lvTable.data[0]);
+        
+        scope.orderBy = function(col) {
+          scope.orderByField = col.field;
+          scope.reverseOrder = !scope.reverseOrder;
+        };
+        scope.isOrderedBy = function(col) { return scope.orderByField === col.field; };
       }
     };
   });

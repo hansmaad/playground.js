@@ -11,6 +11,10 @@
   border: 1px solid silver;
   padding: 0.2em 0.5em 0.2em 5px;
   background-color: #fafafa;
+
+}
+.lv-table-head-cell a{
+  text-decoration:none;
 }
 
 .lv-table-cell {

@@ -1,11 +1,19 @@
 <table class="lv-table">
-  <thead class="lv-table-head-cell">
+  <thead class="lv-table-head">
     <tr>
-      <th class="lv-table-head-cell" ng-repeat='col in columns'>{{col.displayName}}</th>
+      <th class="lv-table-head-cell" ng-repeat='col in columns'>
+        <a href="" ng-click="orderBy(col)">
+          {{col.display}}
+          <span ng-show="isOrderedBy(col)">
+            <span ng-show="!reverseOrder" style="font-size:60%">&#x25B2;</span>
+            <span ng-show="reverseOrder" style="font-size:60%">&#x25BC;</span>
+          </span>
+        </a> 
+      </th>
     </tr>
   </thead>
   <tbody class="lv-table-body">
-    <tr ng-repeat='row in lvTable.data'>
+    <tr ng-repeat='row in orderedData = (lvTable.data|orderBy:orderByField:reverseOrder)'>
       <td class="lv-table-cell" lv-table-cell ng-repeat='col in columns'></td>
     </tr>
   </tbody>
