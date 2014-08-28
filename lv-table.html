@@ -1,0 +1,12 @@
+<table class="lv-table">
+  <thead class="lv-table-head-cell">
+    <tr>
+      <th class="lv-table-head-cell" ng-repeat='col in columns'>{{col.displayName}}</th>
+    </tr>
+  </thead>
+  <tbody class="lv-table-body">
+    <tr ng-repeat='row in lvTable.data'>
+      <td class="lv-table-cell" lv-table-cell ng-repeat='col in columns'></td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.19/angular.js"></script>
+    <script src="lv-table.js"></script>
+    <script type="text/javascript">
+      angular.module("app", ["lvTable"])
+        .controller("myController", function($scope) {
+          $scope.items = [
+            { id : 1, name : "klaus" },
+            { id : 2, name : "hans" },
+            { id : 3, name : "uwe" }
+            
+          ];
+          
+          $scope.options = {
+            data : $scope.items,
+            columns: [
+              { field:'id', displayName:'ID', template : "<a href=''>{{ row.id }}</a>" }, 
+              { field:'name', displayName:'Name' }
+            ]
+          };
+        });
+    </script>
+  
+    <link href="lv-table.css" rel="stylesheet">
+  </head>
+  
+  <body ng-app="app" ng-controller="myController">
+    <div lv-table="options"></div>
+  </body>
+</html>
